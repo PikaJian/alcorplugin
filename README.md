@@ -1,1 +1,1 @@
-# AlcorPlugin
+# AlcorPlugin Pika
