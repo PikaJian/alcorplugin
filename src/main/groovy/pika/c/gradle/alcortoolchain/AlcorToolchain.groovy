@@ -13,6 +13,7 @@ import org.gradle.internal.service.ServiceRegistry
 import org.gradle.nativeplatform.toolchain.*
 import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin
+import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory;
 import org.gradle.internal.operations.BuildOperationProcessor
 import org.gradle.nativeplatform.toolchain.internal.gcc.version.CompilerMetaDataProviderFactory
 
@@ -68,13 +69,11 @@ class AlcorToolchainPlugin implements Plugin<Project> {
             final Instantiator instantiator = serviceRegistry.get(Instantiator.class);
             final BuildOperationProcessor buildOperationProcessor = serviceRegistry.get(BuildOperationProcessor.class);
             final CompilerMetaDataProviderFactory metaDataProviderFactory = serviceRegistry.get(CompilerMetaDataProviderFactory.class);
-            println "fuck"
+            final CompilerOutputFileNamingSchemeFactory compilerOutputFileNamingSchemeFactory = serviceRegistry.get(CompilerOutputFileNamingSchemeFactory.class);
             toolChainRegistry.registerFactory(AlcorToolchainGCC.class, { String name ->
-                return instantiator.newInstance(AlcorToolchainGCC.class, instantiator, name, buildOperationProcessor, OperatingSystem.current(), fileResolver, execActionFactory, metaDataProviderFactory)
+                return instantiator.newInstance(AlcorToolchainGCC.class, instantiator, name, buildOperationProcessor, OperatingSystem.current(), fileResolver, execActionFactory, compilerOutputFileNamingSchemeFactory, metaDataProviderFactory)
             })
-            println "shit"
             toolChainRegistry.registerDefaultToolChain("alcorGcc", AlcorToolchainGCC.class)
-            println "asshole"
         }
 
         /*@Mutate

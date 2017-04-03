@@ -3,22 +3,20 @@ package pika.c.gradle.alcortoolchain
 import org.gradle.api.*
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.nativeplatform.platform.internal.NativePlatformInternal 
-import org.gradle.nativeplatform.platform.internal.ArchitectureInternal
 import org.gradle.nativeplatform.toolchain.internal.gcc.*
 import org.gradle.nativeplatform.toolchain.internal.*
-import org.gradle.api.internal.ClassGeneratorBackedInstantiator
 import org.gradle.process.internal.ExecActionFactory
 import org.gradle.nativeplatform.toolchain.internal.gcc.version.CompilerMetaDataProviderFactory
 import org.gradle.internal.operations.BuildOperationProcessor
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.nativeplatform.toolchain.GccPlatformToolChain
 import org.gradle.nativeplatform.toolchain.internal.gcc.version.GccVersionResult;
+import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory;
 
 public class AlcorToolchainGCC extends GccToolChain {
     public static final String DEFAULT_NAME = "Gcc";
-    public AlcorToolchainGCC(Instantiator instantiator, String name, BuildOperationProcessor buildOperationProcessor, OperatingSystem operatingSystem, FileResolver fileResolver, ExecActionFactory execActionFactory, CompilerMetaDataProviderFactory metaDataProviderFactory) {
-        super(instantiator, name, buildOperationProcessor, operatingSystem, fileResolver, execActionFactory, metaDataProviderFactory)
+    public AlcorToolchainGCC(Instantiator instantiator, String name, BuildOperationProcessor buildOperationProcessor, OperatingSystem operatingSystem, FileResolver fileResolver, ExecActionFactory execActionFactory, CompilerOutputFileNamingSchemeFactory compilerOutputFileNamingSchemeFactory, CompilerMetaDataProviderFactory metaDataProviderFactory) {
+        super(instantiator, name, buildOperationProcessor, operatingSystem, fileResolver, execActionFactory, compilerOutputFileNamingSchemeFactory, metaDataProviderFactory)
 
         target("nds32", new Action<GccPlatformToolChain>() {
             @Override
