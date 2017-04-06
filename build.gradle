@@ -1,19 +1,22 @@
-// START SNIPPET use-plugin
-apply plugin: 'groovy'
-
-// START SNIPPET gradle-api-dependencies
-// START SNIPPET local-groovy-dependencies
-dependencies {
-// END SNIPPET local-groovy-dependencies
-    compile gradleApi()
-// END SNIPPET gradle-api-dependencies
-// START SNIPPET local-groovy-dependencies
-    compile localGroovy()
-// START SNIPPET gradle-api-dependencies
+plugins {
+  id "com.jfrog.artifactory" version "4.4.15"
 }
-// END SNIPPET gradle-api-dependencies
-// END SNIPPET local-groovy-dependencies
-// END SNIPPET use-plugin
+
+apply plugin: 'groovy'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
+
+group = 'org.gradle'
+def artifactVersion = '1.0.1'
+def artifactory_contextUrl = "http://192.168.17.250:8082/artifactory"
+def artifactory_user = 'admin'
+def artifactory_password = 'password'
+
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
 
 apply plugin: 'maven'
 
@@ -25,13 +28,47 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-group = 'org.gradle'
-version = '1.0'
-
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: uri('../repo'))
+        }
+    }
+}
+
+publishing {
+    publications {
+        plugin(MavenPublication) {
+            groupId = group
+            artifactId project.name
+            version = artifactVersion
+            artifact jar
+        }
+    }
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            // The Artifactory repository key to publish to
+            repoKey = "AlcorVision"
+            username = "${artifactory_user}" // The publisher user name
+            password = "${artifactory_password}" // The publisher password
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publications('plugin')
+            publishPom = true //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'jcenter'
+            username = "${artifactory_user}" // The resolver user name
+            password = "${artifactory_password}" // The resolver password
         }
     }
 }

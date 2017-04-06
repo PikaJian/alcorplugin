@@ -1,5 +1,3 @@
-package pika.c.gradle.alcortoolchain
-
 import org.gradle.model.Managed
 
 @Managed

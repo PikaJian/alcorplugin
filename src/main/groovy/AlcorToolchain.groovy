@@ -1,5 +1,3 @@
-package pika.c.gradle.alcortoolchain
-
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.api.*
 import org.gradle.model.*
@@ -8,14 +6,18 @@ import org.gradle.language.base.plugins.ComponentModelBasePlugin
 
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.process.internal.ExecActionFactory
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.nativeplatform.toolchain.*
 import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin
-import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory;
+import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory
 import org.gradle.internal.operations.BuildOperationProcessor
 import org.gradle.nativeplatform.toolchain.internal.gcc.version.CompilerMetaDataProviderFactory
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal
+import org.gradle.nativeplatform.toolchain.internal.DefaultNativeToolChainRegistry;
+import org.gradle.api.plugins.ExtensionContainer
+import org.gradle.internal.reflect.Instantiator;
+import javax.inject.Inject;
 
 interface AlcorToolchainBase {
     boolean canApply(OperatingSystem os)
@@ -44,13 +46,26 @@ class AlcorToolchainPlugin implements Plugin<Project> {
     }
 
     static class Rules extends RuleSource {
-        @Model("alcor")
+        @Model("Alcor")
         void createAlcorModel(AlcorSpec spec) {}
 
+        /*
+        @Model
+        NativeToolChainRegistryInternal toolChains(ExtensionContainer extensionContainer) {
+            return extensionContainer.getByType(NativeToolChainRegistryInternal.class);
+        }
+        */
         @Defaults 
         void defaultAlcorModel(AlcorSpec spec) {
             spec.setCppVersion("c++1y") // C++1Y = (roughly) C++14. The RoboRIO supports C++1Y (not C++14 ISO standard)
             spec.setDebugInfo(true) // This adds -g (gcc) and /Zi,/FS,/DEBUG (msvc). This is used for debugging and symbol info in a crash
+        }
+
+        @Finalize
+        public void createDefaultToolChain(NativeToolChainRegistryInternal alcorToolChains) {
+            if (alcorToolChains.isEmpty()) {
+                alcorToolChains.addDefaultToolChains();
+            }
         }
 
         // TODO Platform Compilers for ARM (Rasp Pi, Pine64)?
@@ -73,12 +88,12 @@ class AlcorToolchainPlugin implements Plugin<Project> {
             toolChainRegistry.registerFactory(AlcorToolchainGCC.class, { String name ->
                 return instantiator.newInstance(AlcorToolchainGCC.class, instantiator, name, buildOperationProcessor, OperatingSystem.current(), fileResolver, execActionFactory, compilerOutputFileNamingSchemeFactory, metaDataProviderFactory)
             })
-            toolChainRegistry.registerDefaultToolChain("alcorGcc", AlcorToolchainGCC.class)
+            toolChainRegistry.registerDefaultToolChain(AlcorToolchainGCC.DEFAULT_NAME, AlcorToolchainGCC.class)
         }
 
-        /*@Mutate
-        void configureToolchains(NativeToolChainRegistry toolChains, @Path("alcor") AlcorSpec alcorSpec) {
-        }*/
+        @Mutate
+        void configureToolchains(NativeToolChainRegistry toolChains, @Path("Alcor") AlcorSpec alcorSpec) {
+        }
 
         /*@Mutate
         void configureAlcorBuildable(BinaryContainer binaries) {
